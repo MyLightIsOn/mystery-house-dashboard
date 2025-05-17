@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Bar,
@@ -9,12 +9,32 @@ import {
   YAxis,
 } from "recharts";
 import { ChartDatum } from "@/types/ChartDatum";
+import { ImprovementStats } from "@/types/ImprovementStats";
+import axios from "axios";
 
-type ImprovementChartData = {
-  data: ChartDatum[];
-};
+function ImprovementChart() {
+  const [improvementData, setImprovementData] = useState<ChartDatum[]>([]);
 
-function ImprovementChart({ data }: ImprovementChartData) {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const improvementRes = await axios.get<ImprovementStats[]>(
+          "/api/analytics/improvement",
+        );
+        const improvement: ChartDatum[] = improvementRes.data.map((item) => ({
+          name: `Puzzle ${item.puzzle_id.replace("puzzle_", "")}`,
+          improvement: item.improvement_seconds,
+        }));
+
+        setImprovementData(improvement);
+      } catch (error) {
+        console.error("Error fetching analytics data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <Card className="md:col-span-2">
       <CardContent className="p-4">
@@ -22,7 +42,7 @@ function ImprovementChart({ data }: ImprovementChartData) {
           Improvement Score (First vs Last Attempt)
         </h2>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
+          <BarChart data={improvementData}>
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />

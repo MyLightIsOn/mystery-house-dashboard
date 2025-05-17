@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ChartDatum } from "@/types/ChartDatum";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -10,12 +10,35 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import axios from "axios";
+import { DropoffStats } from "@/types/DropoffStats";
 
-type DropoffChartData = {
-  data: ChartDatum[];
-};
+function DropoffChart() {
+  const [dropoffData, setDropoffData] = useState<ChartDatum[]>([]);
 
-function DropoffChart({ data }: DropoffChartData) {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const dropoffRes = await axios.get<DropoffStats>(
+          "/api/analytics/dropoff",
+        );
+        const dropoff: ChartDatum[] = Object.entries(dropoffRes.data).map(
+          ([key, value]) => ({
+            name: `Puzzle ${key.replace("puzzle_", "")}`,
+            started: value.started,
+            completed: value.completed,
+          }),
+        );
+
+        setDropoffData(dropoff);
+      } catch (error) {
+        console.error("Error fetching analytics data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <Card className="md:col-span-2">
       <CardContent className="p-4">
@@ -23,7 +46,7 @@ function DropoffChart({ data }: DropoffChartData) {
           Puzzle Drop-off: Started vs Completed
         </h2>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
+          <BarChart data={dropoffData}>
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />

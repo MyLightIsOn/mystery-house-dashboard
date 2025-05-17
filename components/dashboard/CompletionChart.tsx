@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Bar,
@@ -9,12 +11,34 @@ import {
   YAxis,
 } from "recharts";
 import { ChartDatum } from "@/types/ChartDatum";
+import { PuzzleStats } from "@/types/PuzzleStats";
+import axios from "axios";
 
-type CompletionChartData = {
-  data: ChartDatum[];
-};
+function CompletionChart() {
+  const [completionData, setCompletionData] = useState<ChartDatum[]>([]);
 
-function CompletionChart({ data }: CompletionChartData) {
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const analyticsRes = await axios.get<{ puzzles: PuzzleStats[] }>(
+          "/api/analytics",
+        );
+        const puzzleStats = analyticsRes.data.puzzles;
+
+        const completions: ChartDatum[] = puzzleStats.map((p) => ({
+          name: `Puzzle ${p.puzzle_id.replace("puzzle_", "")}`,
+          completions: p.completions,
+        }));
+
+        setCompletionData(completions);
+      } catch (error) {
+        console.error("Error fetching analytics data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <Card>
       <CardContent className="p-4">
@@ -22,7 +46,7 @@ function CompletionChart({ data }: CompletionChartData) {
           Puzzle Completion Overview
         </h2>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
+          <BarChart data={completionData}>
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />

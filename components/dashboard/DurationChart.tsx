@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Bar,
@@ -9,12 +9,34 @@ import {
   YAxis,
 } from "recharts";
 import { ChartDatum } from "@/types/ChartDatum";
+import axios from "axios";
+import { PuzzleStats } from "@/types/PuzzleStats";
 
-type DurationChartData = {
-  data: ChartDatum[];
-};
+function DurationChart() {
+  const [durationData, setDurationData] = useState<ChartDatum[]>([]);
 
-function DurationChart({ data }: DurationChartData) {
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const analyticsRes = await axios.get<{ puzzles: PuzzleStats[] }>(
+          "/api/analytics",
+        );
+        const puzzleStats = analyticsRes.data.puzzles;
+
+        const durations: ChartDatum[] = puzzleStats.map((p) => ({
+          name: `Puzzle ${p.puzzle_id.replace("puzzle_", "")}`,
+          avgDuration: p.avg_duration_seconds,
+        }));
+
+        setDurationData(durations);
+      } catch (error) {
+        console.error("Error fetching analytics data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <Card>
       <CardContent className="p-4">
@@ -22,7 +44,7 @@ function DurationChart({ data }: DurationChartData) {
           Average Duration per Puzzle (seconds)
         </h2>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
+          <BarChart data={durationData}>
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
