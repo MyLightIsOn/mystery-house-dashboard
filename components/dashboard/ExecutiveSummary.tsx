@@ -2,16 +2,10 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import CompletionChart from "@/components/dashboard/CompletionChart";
+import DurationChart from "@/components/dashboard/DurationChart";
+import DropoffChart from "@/components/dashboard/DropoffChart";
+import ImprovementChart from "@/components/dashboard/ImprovementChart";
 
 interface PuzzleStats {
   puzzle_id: string;
@@ -99,71 +93,10 @@ export default function ExecutiveSummary() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-      <Card>
-        <CardContent className="p-4">
-          <h2 className="text-xl font-semibold mb-4">
-            Puzzle Completion Overview
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={completionData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="completions" fill="#8884d8" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-4">
-          <h2 className="text-xl font-semibold mb-4">
-            Average Duration per Puzzle (seconds)
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={durationData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="avgDuration" fill="#82ca9d" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card className="md:col-span-2">
-        <CardContent className="p-4">
-          <h2 className="text-xl font-semibold mb-4">
-            Puzzle Drop-off: Started vs Completed
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dropoffData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="started" fill="#ffc658" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="completed" fill="#8884d8" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card className="md:col-span-2">
-        <CardContent className="p-4">
-          <h2 className="text-xl font-semibold mb-4">
-            Improvement Score (First vs Last Attempt)
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={improvementData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="improvement" fill="#8884d8" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      <CompletionChart data={completionData} />
+      <DurationChart data={durationData} />
+      <DropoffChart data={dropoffData} />
+      <ImprovementChart data={improvementData} />
     </div>
   );
 }
