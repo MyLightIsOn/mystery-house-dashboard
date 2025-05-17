@@ -26,18 +26,25 @@ interface DropoffStats {
   };
 }
 
+interface ImprovementStats {
+  puzzle_id: string;
+  improvement_seconds: number;
+}
+
 interface ChartDatum {
   name: string;
   completions?: number;
   avgDuration?: number;
   started?: number;
   completed?: number;
+  improvement?: number;
 }
 
 export default function ExecutiveSummary() {
   const [completionData, setCompletionData] = useState<ChartDatum[]>([]);
   const [durationData, setDurationData] = useState<ChartDatum[]>([]);
   const [dropoffData, setDropoffData] = useState<ChartDatum[]>([]);
+  const [improvementData, setImprovementData] = useState<ChartDatum[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,6 +79,16 @@ export default function ExecutiveSummary() {
         );
 
         setDropoffData(dropoff);
+
+        const improvementRes = await axios.get<ImprovementStats[]>(
+          "/api/analytics/improvement",
+        );
+        const improvement: ChartDatum[] = improvementRes.data.map((item) => ({
+          name: `Puzzle ${item.puzzle_id.replace("puzzle_", "")}`,
+          improvement: item.improvement_seconds,
+        }));
+
+        setImprovementData(improvement);
       } catch (error) {
         console.error("Error fetching analytics data:", error);
       }
@@ -127,6 +144,22 @@ export default function ExecutiveSummary() {
               <Legend />
               <Bar dataKey="started" fill="#ffc658" radius={[4, 4, 0, 0]} />
               <Bar dataKey="completed" fill="#8884d8" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      <Card className="md:col-span-2">
+        <CardContent className="p-4">
+          <h2 className="text-xl font-semibold mb-4">
+            Improvement Score (First vs Last Attempt)
+          </h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={improvementData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="improvement" fill="#8884d8" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
