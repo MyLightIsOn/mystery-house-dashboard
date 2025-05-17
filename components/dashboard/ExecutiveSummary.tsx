@@ -13,7 +13,8 @@ import {
 } from "recharts";
 
 export default function ExecutiveSummary() {
-  const [data, setData] = useState([]);
+  const [completionData, setCompletionData] = useState([]);
+  const [durationData, setDurationData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,20 +22,28 @@ export default function ExecutiveSummary() {
         const res = await axios.get("/api/analytics");
         const puzzleStats = res.data.puzzles;
 
-        const chartData = puzzleStats.map(
+        const completions = puzzleStats.map(
           (p: { puzzle_id: string; completions: number }) => ({
             name: `Puzzle ${p.puzzle_id.replace("puzzle_", "")}`,
             completions: p.completions,
           }),
         );
 
-        setData(chartData);
+        const durations = puzzleStats.map(
+          (p: { puzzle_id: string; avg_duration_seconds: number }) => ({
+            name: `Puzzle ${p.puzzle_id.replace("puzzle_", "")}`,
+            avgDuration: p.avg_duration_seconds,
+          }),
+        );
+
+        setCompletionData(completions);
+        setDurationData(durations);
       } catch (error) {
         console.error("Error fetching puzzle data:", error);
       }
     };
 
-    fetchData().then((r) => console.log(r));
+    fetchData();
   }, []);
 
   return (
@@ -45,11 +54,27 @@ export default function ExecutiveSummary() {
             Puzzle Completion Overview
           </h2>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data}>
+            <BarChart data={completionData}>
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
               <Bar dataKey="completions" fill="#8884d8" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-4">
+          <h2 className="text-xl font-semibold mb-4">
+            Average Duration per Puzzle (seconds)
+          </h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={durationData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="avgDuration" fill="#82ca9d" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
