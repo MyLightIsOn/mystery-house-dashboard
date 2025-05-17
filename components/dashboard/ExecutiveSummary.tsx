@@ -4,6 +4,7 @@ import CompletionChart from "@/components/dashboard/CompletionChart";
 import DurationChart from "@/components/dashboard/DurationChart";
 import DropoffChart from "@/components/dashboard/DropoffChart";
 import ImprovementChart from "@/components/dashboard/ImprovementChart";
+import FirstTryChart from "@/components/dashboard/FirstTryChart";
 
 export default function ExecutiveSummary() {
   return (
@@ -12,6 +13,7 @@ export default function ExecutiveSummary() {
       <DurationChart />
       <DropoffChart />
       <ImprovementChart />
+      <FirstTryChart />
     </div>
   );
 }
