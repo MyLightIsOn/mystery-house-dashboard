@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,12 +19,12 @@ export default function ExecutiveSummary() {
     const fetchData = async () => {
       try {
         const res = await axios.get("/api/analytics");
-        const completions = res.data.completions_per_puzzle;
+        const puzzleStats = res.data.puzzles;
 
-        const chartData = Object.entries(completions).map(
-          ([puzzleId, count]) => ({
-            name: `Puzzle ${puzzleId}`,
-            completions: count,
+        const chartData = puzzleStats.map(
+          (p: { puzzle_id: string; completions: number }) => ({
+            name: `Puzzle ${p.puzzle_id.replace("puzzle_", "")}`,
+            completions: p.completions,
           }),
         );
 
