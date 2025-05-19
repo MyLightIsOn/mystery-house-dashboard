@@ -16,6 +16,9 @@ import axios from "axios";
 
 function CompletionChart() {
   const [completionData, setCompletionData] = useState<ChartDatum[]>([]);
+  const [summary, setSummary] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -31,8 +34,20 @@ function CompletionChart() {
         }));
 
         setCompletionData(completions);
+
+        const summaryRes = await axios.post("/api/generate-summary", {
+          chartData: completions,
+        });
+
+        setSummary(summaryRes.data.summary);
       } catch (error) {
-        console.error("Error fetching analytics data:", error);
+        console.error(
+          "Error fetching analytics data or generating summary:",
+          error,
+        );
+        setError("Failed to load summary. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -53,6 +68,11 @@ function CompletionChart() {
             <Bar dataKey="completions" fill="#8884d8" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
+        <div className="mt-4 text-sm text-muted-foreground italic">
+          {loading && "Generating summary..."}
+          {error && <span className="text-red-500">{error}</span>}
+          {!loading && !error && summary && summary}
+        </div>
       </CardContent>
     </Card>
   );
