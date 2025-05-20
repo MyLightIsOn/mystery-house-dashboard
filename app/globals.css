@@ -123,6 +123,7 @@
 
 button {
   cursor: pointer;
+  background-color: rgba(92, 88, 157, 0.13);
 
   &:hover {
     color: black;
@@ -132,6 +133,6 @@ button {
 }
 
 .data-\[state\=on\]\:bg-accent[data-state="on"] {
-  background-color: black;
+  background-color: #5c589d;
   color: #FFF;
 }

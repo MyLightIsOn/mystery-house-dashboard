@@ -66,6 +66,7 @@ function CompletionOverviewChart() {
           <ToggleGroup
             type="single"
             value={view}
+            className={"border border-black"}
             onValueChange={(val) =>
               setView((val as "chart" | "table") || "chart")
             }

@@ -79,6 +79,7 @@ function DropoffChart() {
             Puzzle Drop-off: Started vs Completed
           </h2>
           <ToggleGroup
+            className={"border border-black"}
             type="single"
             value={view}
             onValueChange={(val) =>
