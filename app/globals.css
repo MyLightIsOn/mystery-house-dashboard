@@ -120,3 +120,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+button {
+  cursor: pointer;
+
+  &:hover {
+    color: black;
+    text-decoration: underline;
+    background-color: #FFFFFF;
+  }
+}
+
+.data-\[state\=on\]\:bg-accent[data-state="on"] {
+  background-color: black;
+  color: #FFF;
+}
