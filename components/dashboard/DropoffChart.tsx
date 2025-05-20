@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -101,6 +102,7 @@ function DropoffChart() {
               data={data}
               margin={{ top: 16, right: 30, left: 0, bottom: 5 }}
             >
+              <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="name"
                 interval={0}

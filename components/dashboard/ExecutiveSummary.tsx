@@ -13,9 +13,10 @@ export default function ExecutiveSummary() {
       <CompletionChart />
       <DurationChart />
       <DropoffChart />
-      {/*
       <ImprovementChart />
       <FirstTryChart />
+      {/*
+
       <DeviceChart />*/}
     </div>
   );

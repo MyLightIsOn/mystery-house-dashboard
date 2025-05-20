@@ -5,13 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import axios from "axios";
 import DataTable from "@/components/dashboard/DataTable";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
+  PieChart,
+  Pie,
+  Cell,
   Tooltip,
-  ResponsiveContainer,
   Legend,
+  ResponsiveContainer,
 } from "recharts";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -20,7 +19,18 @@ interface CompletionDatum {
   completions: number;
 }
 
-function CompletionOverviewChart() {
+const COLORS = [
+  "#8884d8",
+  "#82ca9d",
+  "#ffc658",
+  "#ff7f50",
+  "#8dd1e1",
+  "#a4de6c",
+  "#d0ed57",
+  "#ffc0cb",
+];
+
+function CompletionPieChart() {
   const [data, setData] = useState<CompletionDatum[]>([]);
   const [summary, setSummary] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -35,7 +45,7 @@ function CompletionOverviewChart() {
 
         const formatted: CompletionDatum[] = puzzleStats.map(
           (p: { puzzle_id: string; completions: number }) => ({
-            name: `Puzzle ${p.puzzle_id.replace("puzzle_", "")}`,
+            name: `Puzzle ${parseInt(p.puzzle_id.replace("puzzle_", "")) + 1}`,
             completions: Number(p.completions ?? 0),
           }),
         );
@@ -59,14 +69,13 @@ function CompletionOverviewChart() {
   }, []);
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardContent>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Puzzle Completions</h2>
+          <h2 className="text-xl font-semibold">Puzzle Completions (Pie)</h2>
           <ToggleGroup
             type="single"
             value={view}
-            className={"border border-black"}
             onValueChange={(val) =>
               setView((val as "chart" | "table") || "chart")
             }
@@ -81,19 +90,27 @@ function CompletionOverviewChart() {
             rows={data.map((d) => [d.name, d.completions])}
           />
         ) : (
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={data}>
-              <XAxis dataKey="name" />
-              <YAxis />
+          <ResponsiveContainer width="100%" height={400}>
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="completions"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={120}
+                label
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
               <Tooltip />
               <Legend />
-              <Bar
-                dataKey="completions"
-                fill="#5c589d"
-                radius={[4, 4, 0, 0]}
-                name="Completions"
-              />
-            </BarChart>
+            </PieChart>
           </ResponsiveContainer>
         )}
         <div className="mt-4 text-sm border-t-1 border-gray-400 pt-4">
@@ -106,4 +123,4 @@ function CompletionOverviewChart() {
   );
 }
 
-export default CompletionOverviewChart;
+export default CompletionPieChart;
