@@ -72,6 +72,7 @@ function FirstTrySuccessChart() {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">First Try Success Rate</h2>
           <ToggleGroup
+            className={"border border-black"}
             type="single"
             value={view}
             onValueChange={(val) =>

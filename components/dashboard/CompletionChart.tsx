@@ -21,13 +21,13 @@ interface CompletionDatum {
 
 const COLORS = [
   "#8884d8",
-  "#82ca9d",
-  "#ffc658",
+  "#466853",
+  "#684646",
   "#ff7f50",
   "#8dd1e1",
-  "#a4de6c",
-  "#d0ed57",
-  "#ffc0cb",
+  "#5e833c",
+  "#798744",
+  "#9a636d",
 ];
 
 function CompletionPieChart() {
@@ -74,6 +74,7 @@ function CompletionPieChart() {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Puzzle Completions (Pie)</h2>
           <ToggleGroup
+            className={"border border-black"}
             type="single"
             value={view}
             onValueChange={(val) =>

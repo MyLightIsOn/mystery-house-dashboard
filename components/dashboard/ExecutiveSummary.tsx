@@ -15,9 +15,7 @@ export default function ExecutiveSummary() {
       <DropoffChart />
       <ImprovementChart />
       <FirstTryChart />
-      {/*
-
-      <DeviceChart />*/}
+      <DeviceChart />
     </div>
   );
 }

@@ -2,53 +2,62 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import axios from "axios";
+import DataTable from "@/components/dashboard/DataTable";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
+  PieChart,
+  Pie,
+  Cell,
   Tooltip,
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import axios from "axios";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-interface DeviceStats {
-  device_type: string;
-  puzzle_id: string;
-  average_duration_seconds: number;
-  completion_count: number;
-}
-
-interface ChartDatum {
-  name: string;
-  duration: number;
+interface DeviceDatum {
+  device: string;
   completions: number;
 }
 
-function DeviceComparisonChart() {
-  const [data, setData] = useState<Record<string, ChartDatum[]>>({});
+const COLORS = ["#8884d8", "#684646", "#418c65", "#ff7f50"];
+
+function DevicePieChart() {
+  const [data, setData] = useState<DeviceDatum[]>([]);
+  const [summary, setSummary] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+  const [view, setView] = useState<"chart" | "table">("chart");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get<DeviceStats[]>("/api/analytics/devices");
-        const grouped: Record<string, ChartDatum[]> = {};
+        const res = await axios.get("/api/analytics/devices");
+        const rawData = res.data;
 
-        res.data.forEach((entry) => {
-          const name = `Puzzle ${entry.puzzle_id.replace("puzzle_", "")}`;
-          if (!grouped[entry.device_type]) grouped[entry.device_type] = [];
+        const grouped: Record<string, number> = {};
+        rawData.forEach(
+          (entry: { device_type: string; completion_count: number }) => {
+            const device = entry.device_type;
+            grouped[device] = (grouped[device] || 0) + entry.completion_count;
+          },
+        );
 
-          grouped[entry.device_type].push({
-            name,
-            duration: entry.average_duration_seconds,
-            completions: entry.completion_count,
-          });
+        const formatted: DeviceDatum[] = Object.entries(grouped).map(
+          ([device, completions]) => ({ device, completions }),
+        );
+
+        setData(formatted);
+
+        const summaryRes = await axios.post("/api/generate-summary/devices", {
+          chartData: formatted,
         });
 
-        setData(grouped);
-      } catch (error) {
-        console.error("Error fetching device comparison data:", error);
+        setSummary(summaryRes.data.summary);
+      } catch (err) {
+        console.error("Error fetching device data or summary:", err);
+        setError("Failed to load chart or summary.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -56,41 +65,58 @@ function DeviceComparisonChart() {
   }, []);
 
   return (
-    <>
-      {Object.entries(data).map(([device, chartData]) => (
-        <Card key={device} className="mb-6">
-          <CardContent className="p-4">
-            <h2 className="text-xl font-semibold mb-4">
-              {device} - Duration & Completions
-            </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={chartData}>
-                <XAxis dataKey="name" />
-                <YAxis yAxisId="left" orientation="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <Tooltip />
-                <Legend />
-                <Bar
-                  yAxisId="left"
-                  dataKey="duration"
-                  fill="#5c589d"
-                  name="Avg Duration (s)"
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  yAxisId="right"
-                  dataKey="completions"
-                  fill="#82ca9d"
-                  name="Completions"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      ))}
-    </>
+    <Card className="w-full">
+      <CardContent>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Completions by Device Type</h2>
+          <ToggleGroup
+            type="single"
+            value={view}
+            onValueChange={(val) =>
+              setView((val as "chart" | "table") || "chart")
+            }
+          >
+            <ToggleGroupItem value="chart">Chart</ToggleGroupItem>
+            <ToggleGroupItem value="table">Table</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+        {view === "table" ? (
+          <DataTable
+            columns={["Device", "Completions"]}
+            rows={data.map((d) => [d.device, d.completions])}
+          />
+        ) : (
+          <ResponsiveContainer width="100%" height={400}>
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="completions"
+                nameKey="device"
+                cx="50%"
+                cy="50%"
+                outerRadius={120}
+                label
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
+        <div className="mt-4 text-sm border-t-1 border-gray-400 pt-4">
+          {loading && <p>Generating AI summary...</p>}
+          {error && <span className="text-red-500">{error}</span>}
+          {!loading && !error && summary}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-export default DeviceComparisonChart;
+export default DevicePieChart;
