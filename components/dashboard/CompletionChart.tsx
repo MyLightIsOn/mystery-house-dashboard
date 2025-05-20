@@ -88,7 +88,7 @@ function CompletionOverviewChart() {
               <Legend />
               <Bar
                 dataKey="completions"
-                fill="#8884d8"
+                fill="#5c589d"
                 radius={[4, 4, 0, 0]}
                 name="Completions"
               />

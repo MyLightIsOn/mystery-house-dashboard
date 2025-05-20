@@ -91,8 +91,8 @@ function AverageDurationRadarChart() {
               <Radar
                 name="Avg Duration"
                 dataKey="duration"
-                stroke="#8884d8"
-                fill="#8884d8"
+                stroke="#5c589d"
+                fill="#5c589d"
                 fillOpacity={0.6}
               />
               <Tooltip />

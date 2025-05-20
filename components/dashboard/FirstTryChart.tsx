@@ -60,7 +60,7 @@ function FirstTrySuccessChart() {
             <Bar
               yAxisId="left"
               dataKey="firstTry"
-              fill="#8884d8"
+              fill="#5c589d"
               name="First Try Completions"
               radius={[4, 4, 0, 0]}
             />

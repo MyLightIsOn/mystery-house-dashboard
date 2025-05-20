@@ -73,7 +73,7 @@ function DeviceComparisonChart() {
                 <Bar
                   yAxisId="left"
                   dataKey="duration"
-                  fill="#8884d8"
+                  fill="#5c589d"
                   name="Avg Duration (s)"
                   radius={[4, 4, 0, 0]}
                 />
