@@ -43,17 +43,14 @@ function DropoffChart() {
       try {
         const res = await axios.get("/api/analytics/dropoff");
 
-        const formatted: {
-          name: string;
-          started: Values;
-          completed: Values;
-        }[] = Object.entries<Data>(res.data).map(([puzzleId, values]) => ({
-          name: `Puzzle ${parseInt(puzzleId.replace("puzzle_", "")) + 1}`,
-          started: values.started,
-          completed: values.completed,
-        }));
+        const formatted: DropoffDatum[] = Object.entries(res.data as Data).map(
+          ([puzzleId, values]) => ({
+            name: `Puzzle ${parseInt(puzzleId.replace("puzzle_", "")) + 1}`,
+            started: values.started,
+            completed: values.completed,
+          }),
+        );
 
-        // @ts-ignore
         setData(formatted);
 
         const summaryRes = await axios.post("/api/generate-summary/dropoff", {

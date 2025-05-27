@@ -1,6 +1,11 @@
 import { OpenAI } from "openai";
 import { NextResponse } from "next/server";
 
+interface CompletionDatum {
+  name: string;
+  completions: number;
+}
+
 const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_KEY,
 });
@@ -11,7 +16,7 @@ export async function POST(req: Request) {
     const { chartData } = body;
 
     const chartString = chartData
-      .map((d: any) => `${d.name}: ${d.completions} completions`)
+      .map((d: CompletionDatum) => `${d.name}: ${d.completions} completions`)
       .join(", ");
 
     const prompt = `You are a friendly AI helping to analyze puzzle completion data from a haunted house accessibility training game. Here's the data: ${chartString}. Summarize the results in 2–3 sentences. Mention which puzzle was completed most and least, and whether there's a trend.`;
