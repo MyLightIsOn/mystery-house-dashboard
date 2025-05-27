@@ -39,7 +39,7 @@ function FirstTrySuccessChart() {
             first_try_successes: number;
             success_rate_percent: number;
           }) => ({
-            name: `Puzzle ${parseInt(item.puzzle_id.replace("puzzle_", "")) + 1}`,
+            name: `Puzzle ${parseInt(item.puzzle_id.replace("puzzle_", ""))}`,
             firstTry: item.first_try_successes,
             successRate: item.success_rate_percent,
           }),

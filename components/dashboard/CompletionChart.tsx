@@ -45,7 +45,7 @@ function CompletionPieChart() {
 
         const formatted: CompletionDatum[] = puzzleStats.map(
           (p: { puzzle_id: string; completions: number }) => ({
-            name: `Puzzle ${parseInt(p.puzzle_id.replace("puzzle_", "")) + 1}`,
+            name: `Puzzle ${parseInt(p.puzzle_id.replace("puzzle_", ""))}`,
             completions: Number(p.completions ?? 0),
           }),
         );
