@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import LoadingButton from "@/components/custom/loading-button";
 
 interface CompletionDatum {
   name: string;
@@ -33,9 +34,10 @@ const COLORS = [
 function CompletionPieChart() {
   const [data, setData] = useState<CompletionDatum[]>([]);
   const [summary, setSummary] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [view, setView] = useState<"chart" | "table">("chart");
+  const [summaryText, setSummaryText] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,14 +51,7 @@ function CompletionPieChart() {
             completions: Number(p.completions ?? 0),
           }),
         );
-
         setData(formatted);
-
-        const summaryRes = await axios.post("/api/generate-summary/overview", {
-          chartData: formatted,
-        });
-
-        setSummary(summaryRes.data.summary);
       } catch (err) {
         console.error("Error fetching completion data or summary:", err);
         setError("Failed to load chart or summary.");
@@ -67,6 +62,14 @@ function CompletionPieChart() {
 
     fetchData();
   }, []);
+
+  const generateSummary = async () => {
+    const summaryRes = await axios.post("/api/generate-summary/overview", {
+      chartData: data,
+    });
+
+    setSummary(summaryRes.data.summary);
+  };
 
   return (
     <Card className="w-full">
@@ -115,9 +118,20 @@ function CompletionPieChart() {
           </ResponsiveContainer>
         )}
         <div className="mt-4 text-sm border-t-1 border-gray-400 pt-4">
-          {loading && <p>Generating AI summary...</p>}
           {error && <span className="text-red-500">{error}</span>}
-          {!loading && !error && summary}
+          {!loading && !error && summaryText && summary}
+          {!error && !summary && (
+            <LoadingButton
+              isLoading={loading}
+              onClick={() => {
+                setLoading(true);
+                generateSummary().then(() => {
+                  setSummaryText(true);
+                  setLoading(false);
+                });
+              }}
+            />
+          )}
         </div>
       </CardContent>
     </Card>

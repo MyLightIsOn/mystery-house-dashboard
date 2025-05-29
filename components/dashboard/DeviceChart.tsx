@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import LoadingButton from "@/components/custom/loading-button";
 
 interface DeviceDatum {
   device: string;
@@ -27,6 +28,7 @@ function DevicePieChart() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [view, setView] = useState<"chart" | "table">("chart");
+  const [summaryText, setSummaryText] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,12 +49,6 @@ function DevicePieChart() {
         );
 
         setData(formatted);
-
-        const summaryRes = await axios.post("/api/generate-summary/devices", {
-          chartData: formatted,
-        });
-
-        setSummary(summaryRes.data.summary);
       } catch (err) {
         console.error("Error fetching device data or summary:", err);
         setError("Failed to load chart or summary.");
@@ -63,6 +59,14 @@ function DevicePieChart() {
 
     fetchData();
   }, []);
+
+  const generateSummary = async () => {
+    const summaryRes = await axios.post("/api/generate-summary/devices", {
+      chartData: data,
+    });
+
+    setSummary(summaryRes.data.summary);
+  };
 
   return (
     <Card className="w-full">
@@ -111,9 +115,20 @@ function DevicePieChart() {
           </ResponsiveContainer>
         )}
         <div className="mt-4 text-sm border-t-1 border-gray-400 pt-4">
-          {loading && <p>Generating AI summary...</p>}
           {error && <span className="text-red-500">{error}</span>}
-          {!loading && !error && summary}
+          {!loading && !error && summaryText && summary}
+          {!error && !summary && (
+            <LoadingButton
+              isLoading={loading}
+              onClick={() => {
+                setLoading(true);
+                generateSummary().then(() => {
+                  setSummaryText(true);
+                  setLoading(false);
+                });
+              }}
+            />
+          )}
         </div>
       </CardContent>
     </Card>
