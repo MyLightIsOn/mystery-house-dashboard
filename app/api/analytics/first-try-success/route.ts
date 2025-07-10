@@ -38,38 +38,41 @@ export async function GET() {
     });
 
     // Calculate first try success for each puzzle
-    const result: FirstTrySuccess[] = Object.entries(puzzleGroups).map(([puzzle_id, logs]: [string, PuzzleLog[]]) => {
-      // Group logs by session_id to find first attempts
-      const sessionAttempts: Record<string, PuzzleLog[]> = {};
-      logs.forEach((log: PuzzleLog) => {
-        const sessionId = log.session_id;
-        if (!sessionAttempts[sessionId]) {
-          sessionAttempts[sessionId] = [];
-        }
-        sessionAttempts[sessionId].push(log);
-      });
+    const result: FirstTrySuccess[] = Object.entries(puzzleGroups).map(
+      ([puzzle_id, logs]: [string, PuzzleLog[]]) => {
+        // Group logs by session_id to find first attempts
+        const sessionAttempts: Record<string, PuzzleLog[]> = {};
+        logs.forEach((log: PuzzleLog) => {
+          const sessionId = log.session_id;
+          if (!sessionAttempts[sessionId]) {
+            sessionAttempts[sessionId] = [];
+          }
+          sessionAttempts[sessionId].push(log);
+        });
 
-      // Count first try successes (sessions with only one attempt)
-      let firstTrySuccesses = 0;
-      let totalSessions = Object.keys(sessionAttempts).length;
+        // Count first try successes (sessions with only one attempt)
+        let firstTrySuccesses = 0;
+        const totalSessions = Object.keys(sessionAttempts).length;
 
-      Object.values(sessionAttempts).forEach((attempts: PuzzleLog[]) => {
-        if (attempts.length === 1 && attempts[0].attempt_number === 1) {
-          firstTrySuccesses++;
-        }
-      });
+        Object.values(sessionAttempts).forEach((attempts: PuzzleLog[]) => {
+          if (attempts.length === 1 && attempts[0].attempt_number === 1) {
+            firstTrySuccesses++;
+          }
+        });
 
-      // Calculate success rate
-      const successRatePercent = totalSessions > 0
-        ? Math.round((firstTrySuccesses / totalSessions) * 100)
-        : 0;
+        // Calculate success rate
+        const successRatePercent =
+          totalSessions > 0
+            ? Math.round((firstTrySuccesses / totalSessions) * 100)
+            : 0;
 
-      return {
-        puzzle_id,
-        first_try_successes: firstTrySuccesses,
-        success_rate_percent: successRatePercent
-      } as FirstTrySuccess;
-    });
+        return {
+          puzzle_id,
+          first_try_successes: firstTrySuccesses,
+          success_rate_percent: successRatePercent,
+        } as FirstTrySuccess;
+      },
+    );
 
     return NextResponse.json(result);
   } catch (error) {
